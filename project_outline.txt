@@ -1,0 +1,40 @@
+Project outline
+
+Backend:
+
+    Routes:
+
+        /
+        - GET (display weather information of users location)
+
+        /login
+        - GET (display login form)
+        - POST (authenticate user information)
+
+        /register
+        - GET (display register form)
+        - POST (create a new account for the user)
+        
+        /logout
+        - POST (remove session data, redirect to homepage)
+
+        /search
+        - POST (send search query to external API) 
+        - GET (return search results based on query string)
+
+        /profile
+        - GET (show logged in user's profile page)
+        = PUT (update users profile information)
+
+    Database:
+    
+        MongoDB connected to backend through Moongoose
+
+        User Schema:
+        username: String, required
+        password: String, required
+        location: string
+        createdOn: Date, required
+        updatedOn: Date, required
+
+Frontend:

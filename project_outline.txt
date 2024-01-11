@@ -37,4 +37,6 @@ Backend:
         createdOn: Date, required
         updatedOn: Date, required
 
+        MongoDB password: B2qiBJoszImwMSFL
+
 Frontend:

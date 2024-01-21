@@ -11,8 +11,10 @@ const port = process.env.PORT || 5000;
 // Connect to database
 connectDB();
 
+// Initialize express app
 const app = express();
 
+// Middleware to parse JSON and URL-encoded request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

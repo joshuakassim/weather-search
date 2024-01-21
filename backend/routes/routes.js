@@ -26,6 +26,6 @@ router.get('/profile', ensureLoggedIn, getUserProfile);
 router.put('/profile', ensureLoggedIn, updateUserProfile);
 
 // Search Weather Route
-router.get('/search', searchWeather);
+router.get('/search/:location', ensureLoggedIn, searchWeather);
 
 export default router;

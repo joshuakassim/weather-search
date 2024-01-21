@@ -1,38 +1,37 @@
+import axios from 'axios';
 import asyncHandler from 'express-async-handler';
 import generateToken from '../utils/generateToken.js';
 import User from '../models/userModel.js';
-import express from 'express';
-import axios from 'axios';
-const router = express.Router();
 
-// @description   Authenticate user and set token
-// route          POST /api/users/login
-// @access        Public i.e. does not require user to be logged in to access
+// Log user in and set JWT token
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username });
 
+  // Check if the user exists and passwords match
   if (user && (await user.comparePassword(password))) {
+    // Generate toekn and send JSON response with user data
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
       name: user.name,
       username: user.username,
-      city: user.city,
+      location: user.location,
     });
+
+    // If user does not exist, or passwords do not match, throw and error
   } else {
     res.status(401);
     throw new Error('Invalid username or password');
   }
 });
 
-// @description   Register a new user
-// route          POST /api/users/register
-// @access        Public i.e. does not require user to be logged in to access this route
+// Register new user and log them in
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, username, password, city } = req.body;
+  const { name, username, password } = req.body;
 
+  // Chech if user already exists and respond with appropriate error
   const userExists = await User.findOne({
     username,
   });
@@ -42,30 +41,33 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  const user = await User.create({
-    name,
-    username,
-    password,
-    city,
-  });
-
-  if (user) {
-    generateToken(res, user._id);
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      username: user.username,
-      city: user.city,
+  // Create new user
+  try {
+    const user = await User.create({
+      name,
+      username,
+      password,
     });
-  } else {
+
+    // If use was created, log them in and send JSON response
+    if (user) {
+      generateToken(res, user._id);
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        location: user.location,
+      });
+    }
+
+    // Alert user of error
+  } catch (error) {
     res.status(400);
     throw new Error('Invalid user data');
   }
 });
 
-// @description   Log out user
-// route          POST /api/users/logout
-// @access        Public i.e. does not require user to be logged in to access this route
+// Log user out and destroy cookie
 const logoutUser = asyncHandler(async (req, res) => {
   res.clearCookie('secureUserCookie', {
     httpOnly: true,
@@ -75,43 +77,42 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'User logged out' });
 });
 
-// @description   Get user profile
-// route          GET /api/users/profile
-// @access        Private i.e. user has to be logged in to acces this route
+// Get user profile
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = {
     _id: req.user._id,
     name: req.user.name,
     username: req.user.username,
-    city: req.user.city,
+    location: req.user.location,
     password: req.user.password,
   };
 
   res.status(200).json(user);
 });
 
-// @description   Update user profile
-// route          PUT /api/users/profile
-// @access        Private i.e. user has to be logged in to access ths route
+// Update users profile
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
+  // Update users details
   if (user) {
     user.name = req.body.name || user.name;
     user.username = req.body.username || user.username;
-    user.city = req.body.city || user.city;
+    user.location = req.body.location || user.location;
 
+    // Update users password if provided
     if (req.body.password) {
       user.password = req.body.password;
     }
 
     const updatedUser = await user.save();
 
+    // Send JSON response
     res.status(200).json({
       _id: updatedUser._id,
       name: updatedUser.name,
       username: updatedUser.username,
-      city: updatedUser.city,
+      location: updatedUser.location,
     });
   } else {
     res.status(404);
@@ -119,22 +120,21 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @description   Search weather
-// route          POST /api/users/search
-// @access        Private i.e. user has to be logged in to access ths route
+// Get weather data from API
 const searchWeather = asyncHandler(async (req, res) => {
-  const { city } = req.body;
+  const { location } = req.params;
 
-  console.log(city);
+  const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.API_KEY}&q=${location}&days=7&aqi=no&alerts=no`;
 
-  const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.API_KEY}&q=${city}&days=3&aqi=yes&alerts=no`;
-
+  // Get weather data and send JSON response
   try {
     const response = await axios.get(url);
     res.status(200).json(response.data);
+
+    // Throw error
   } catch (error) {
-    // res.status(404).json({ message: error.message });
-    res.status(400).json({ message: 'That is not a city' });
+    res.status(400);
+    throw new Error('Please enter a valid city');
   }
 });
 

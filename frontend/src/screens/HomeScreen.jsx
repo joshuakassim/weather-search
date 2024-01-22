@@ -18,19 +18,21 @@ const HomeScreen = () => {
 
   // Get weather data on mount
   useEffect(() => {
-    const fetchWeather = async () => {
+    if (userInfo) {
       if (userInfo.location) {
-        const response = await getWeather(userInfo.location);
-        if (response.isError) {
-          toast.error(response?.error?.data?.message);
-        } else {
-          setData(response.data);
-        }
-      } else {
-        return;
+        const fetchWeather = async () => {
+          // if (userInfo.location) {
+          const response = await getWeather(userInfo.location);
+          if (response.isError) {
+            toast.error(response?.error?.data?.message);
+          } else {
+            setData(response.data);
+          }
+          // }
+        };
+        fetchWeather();
       }
-    };
-    fetchWeather();
+    }
   }, []);
 
   return (

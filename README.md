@@ -22,3 +22,8 @@ Git (Install from the official website, https://git-scm.com/)
 ### 3. Run
 ###### Run the application by running the command
     npm run dev
+
+### Test user
+    Name: John Doe
+    Username: john
+    Password: john

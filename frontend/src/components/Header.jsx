@@ -40,7 +40,7 @@ const Header = () => {
             <Nav className='ms-auto'>
               {/* Check if user if logged in */}
               {userInfo ? (
-                // Display profile and logout if logged in
+                // Display profile if logged in
                 <>
                   <Searchbar />
                   <NavDropdown title={userInfo.name} id='userName'>

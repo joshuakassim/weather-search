@@ -21,14 +21,12 @@ const HomeScreen = () => {
     if (userInfo) {
       if (userInfo.location) {
         const fetchWeather = async () => {
-          // if (userInfo.location) {
           const response = await getWeather(userInfo.location);
           if (response.isError) {
             toast.error(response?.error?.data?.message);
           } else {
             setData(response.data);
           }
-          // }
         };
         fetchWeather();
       }

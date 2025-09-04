@@ -1,0 +1,5 @@
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/clustername
+JWT_SECRET=vsdgsdvsergsdvergoiiukanosf
+API_KEY=dusihjkvhukjnrjsdfvoil
